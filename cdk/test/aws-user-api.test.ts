@@ -7,7 +7,12 @@ test('Empty Stack', () => {
     // WHEN
     const stack = new AwsUserApi.AwsUserApiStack(app, 'MyTestStack');
     // THEN
-    expectCDK(stack).to(matchTemplate({
-      "Resources": {}
-    }, MatchStyle.EXACT))
+    expectCDK(stack).to(
+        matchTemplate(
+            {
+                Resources: {},
+            },
+            MatchStyle.EXACT
+        )
+    );
 });

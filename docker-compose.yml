@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+    localstack:
+        container_name: aws-user-api
+        image: localstack/localstack:0.12.10
+        ports:
+            - '4566:4566'
+        environment:
+            - MAIN_CONTAINER_NAME=
+            - SERVICES=lambda,sts,cloudformation,s3,iam,dynamodb,apigateway
+            - DEBUG=1
+            - LAMBDA_EXECUTOR=docker-reuse
+            - DEFAULT_REGION=eu-west-1
+            - LAMBDA_DOCKER_NETWORK=default_network
+        volumes:
+            - '/tmp/localstack:/tmp/localstack'
+            - '/var/run/docker.sock:/var/run/docker.sock'
+
+networks:
+    default:
+        name: default_network

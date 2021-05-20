@@ -1,8 +1,21 @@
-*.js
-!jest.config.js
 *.d.ts
-node_modules
-
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+# OSX
+.DS_Store
+# IntelliJ
+.idea
+*.iml
+# node.js
+node_modules/
+# jest output
+coverage
+# env
+.env
+# CDK assets
+cdk/bin/**/*.js
+cdk/lib/**/*.js
+cdk/test/*.js
+# LocalStack
+output.json

@@ -1,0 +1,7 @@
+{
+    "roots": ["<rootDir>/cdk/test"],
+    "testMatch": ["cdk/**/*.test.ts"],
+    "transform": {
+        "^.+\\.tsx?$": "ts-jest"
+    }
+}
