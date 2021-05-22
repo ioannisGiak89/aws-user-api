@@ -1,7 +1,6 @@
 {
-    "roots": ["<rootDir>/cdk/test"],
-    "testMatch": ["cdk/**/*.test.ts"],
-    "transform": {
-        "^.+\\.tsx?$": "ts-jest"
-    }
+    "testRegex": ["\\.test\\.js$"],
+    "testPathIgnorePatterns": ["\\.integration\\.test\\.js$"],
+    "modulePathIgnorePatterns": ["<rootDir>/cdk.out/"],
+    "testEnvironment": "node"
 }

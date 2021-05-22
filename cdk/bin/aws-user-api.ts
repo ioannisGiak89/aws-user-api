@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
+import * as dotenv from 'dotenv';
 import { AwsUserApiStack } from '../lib/aws-user-api-stack';
+dotenv.config();
 
 const app = new cdk.App();
 new AwsUserApiStack(app, 'AwsUserApiStack', {

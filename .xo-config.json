@@ -26,6 +26,7 @@
     ],
     "envs": ["node"],
     "rules": {
+        "import/extensions": "off",
         "capitalized-comments": "off",
         "camelcase": "off",
         "eqeqeq": ["error", "smart"],

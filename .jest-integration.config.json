@@ -1,0 +1,5 @@
+{
+    "testRegex": ["\\.integration\\.test\\.js$"],
+    "modulePathIgnorePatterns": ["<rootDir>/cdk.out/"],
+    "testEnvironment": "node"
+}

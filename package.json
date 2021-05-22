@@ -7,7 +7,8 @@
     "scripts": {
         "build": "tsc",
         "watch": "tsc -w",
-        "test": "jest --config .jest.config.json",
+        "test": "jest --config .jest.config.json --runInBand",
+        "test:integration": "jest --config .jest-integration.config.json --runInBand",
         "cdk": "cdk",
         "prepare": "husky install"
     },
@@ -27,7 +28,12 @@
         "xo": "^0.40.1"
     },
     "dependencies": {
+        "@aws-cdk/aws-apigateway": "^1.105.0",
+        "@aws-cdk/aws-dynamodb": "^1.105.0",
+        "@aws-cdk/aws-lambda": "^1.105.0",
         "@aws-cdk/core": "1.105.0",
+        "aws-cdk-local": "^1.65.4",
+        "dotenv": "^9.0.2",
         "source-map-support": "^0.5.16"
     }
 }

@@ -7,14 +7,15 @@ services:
         ports:
             - '4566:4566'
         environment:
-            - MAIN_CONTAINER_NAME=
+            - MAIN_CONTAINER_NAME=aws-user-api
             - SERVICES=lambda,sts,cloudformation,s3,iam,dynamodb,apigateway
             - DEBUG=1
             - LAMBDA_EXECUTOR=docker-reuse
             - DEFAULT_REGION=eu-west-1
             - LAMBDA_DOCKER_NETWORK=default_network
+            - LOCALSTACK_HOSTNAME=localStack
         volumes:
-            - '/tmp/localstack:/tmp/localstack'
+            - '${TMPDIR:-/tmp/localstack}:/tmp/localstack'
             - '/var/run/docker.sock:/var/run/docker.sock'
 
 networks:
