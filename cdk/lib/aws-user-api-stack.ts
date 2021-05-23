@@ -1,7 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import { Table, AttributeType, BillingMode } from '@aws-cdk/aws-dynamodb';
 import { RestApi, LambdaIntegration } from '@aws-cdk/aws-apigateway';
-import { Function, Runtime, AssetCode } from '@aws-cdk/aws-lambda';
+import { Function as LambdaFunction, Runtime, AssetCode } from '@aws-cdk/aws-lambda';
 
 export class AwsUserApiStack extends cdk.Stack {
     constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -10,27 +10,10 @@ export class AwsUserApiStack extends cdk.Stack {
         const TABLE_NAME: string | undefined = process.env.TABLE_NAME;
 
         if (!TABLE_NAME) {
-            throw new Error('Please provide table name in you env file');
+            throw new Error('Please provide a table name in you env file');
         }
 
-        const table = new Table(this, TABLE_NAME, {
-            partitionKey: { name: 'id', type: AttributeType.STRING },
-            billingMode: BillingMode.PAY_PER_REQUEST,
-            tableName: TABLE_NAME,
-        });
-
-        const createLambda = new Function(this, 'CreateLambda', {
-            runtime: Runtime.NODEJS_14_X,
-            code: new AssetCode('create-user-lambda'),
-            handler: process.env.AWS_ENV === 'local' ? 'indexLocal.handler' : 'index.handler',
-            environment: {
-                TABLE_NAME,
-            },
-        });
-
-        table.grantWriteData(createLambda);
-
-        const api = new RestApi(this, 'user-api', {
+        const api: RestApi = new RestApi(this, 'user-api', {
             restApiName: 'User API',
             description: 'Provides a CRUD API for users',
             deploy: true,
@@ -39,10 +22,26 @@ export class AwsUserApiStack extends cdk.Stack {
             },
         });
 
-        const createUserIntegration = new LambdaIntegration(createLambda, {
+        const createLambda: LambdaFunction = new LambdaFunction(this, 'CreateLambda', {
+            runtime: Runtime.NODEJS_14_X,
+            code: new AssetCode('create-user-lambda'),
+            handler: process.env.AWS_ENV === 'local' ? 'indexLocal.handler' : 'index.handler',
+            environment: {
+                TABLE_NAME,
+            },
+        });
+
+        const createUserIntegration: LambdaIntegration = new LambdaIntegration(createLambda, {
             requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
         });
 
         api.root.addResource('user').addMethod('PUT', createUserIntegration);
+
+        const table = new Table(this, TABLE_NAME, {
+            partitionKey: { name: 'id', type: AttributeType.STRING },
+            billingMode: BillingMode.PAY_PER_REQUEST,
+            tableName: TABLE_NAME,
+        });
+        table.grantWriteData(createLambda);
     }
 }

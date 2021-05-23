@@ -22,7 +22,7 @@ const TableName = process.env.TABLE_NAME;
 describe('create user lambda', () => {
     beforeEach(() => cleanDynamoTable(documentClient));
 
-    it('should return 400 if the data are missing or are invalid', async () => {
+    it('should return 400 if the request body is missing or is invalid', async () => {
         let response = await handlerFactory({
             event: {
                 body: null,
