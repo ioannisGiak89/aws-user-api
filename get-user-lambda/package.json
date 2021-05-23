@@ -1,0 +1,14 @@
+{
+    "name": "get-user-lambda",
+    "version": "0.0.0",
+    "description": "Lambda that reads users from DynamoDb",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Ioannis Giakoumidis",
+    "license": "ISC",
+    "dependencies": {
+        "aws-sdk": "^2.912.0"
+    }
+}

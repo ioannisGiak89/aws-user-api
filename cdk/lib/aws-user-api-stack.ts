@@ -1,6 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import { Table, AttributeType, BillingMode } from '@aws-cdk/aws-dynamodb';
-import { RestApi, LambdaIntegration } from '@aws-cdk/aws-apigateway';
+import { RestApi, LambdaIntegration, Resource } from '@aws-cdk/aws-apigateway';
 import { Function as LambdaFunction, Runtime, AssetCode } from '@aws-cdk/aws-lambda';
 
 export class AwsUserApiStack extends cdk.Stack {
@@ -31,17 +31,34 @@ export class AwsUserApiStack extends cdk.Stack {
             },
         });
 
+        const getUserLambda: LambdaFunction = new LambdaFunction(this, 'GetUserLambda', {
+            runtime: Runtime.NODEJS_14_X,
+            code: new AssetCode('get-user-lambda'),
+            handler: process.env.AWS_ENV === 'local' ? 'indexLocal.handler' : 'index.handler',
+            environment: {
+                TABLE_NAME,
+            },
+        });
+
         const createUserIntegration: LambdaIntegration = new LambdaIntegration(createLambda, {
             requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
         });
 
-        api.root.addResource('user').addMethod('PUT', createUserIntegration);
+        const getUserIntegration: LambdaIntegration = new LambdaIntegration(getUserLambda, {
+            requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
+        });
+
+        const userPath: Resource = api.root.addResource('user');
+        userPath.addMethod('PUT', createUserIntegration);
+        userPath.addMethod('GET', getUserIntegration);
 
         const table = new Table(this, TABLE_NAME, {
             partitionKey: { name: 'id', type: AttributeType.STRING },
             billingMode: BillingMode.PAY_PER_REQUEST,
             tableName: TABLE_NAME,
         });
+
         table.grantWriteData(createLambda);
+        table.grantReadData(getUserLambda);
     }
 }

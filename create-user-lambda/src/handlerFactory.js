@@ -8,9 +8,9 @@ const handlerFactory = async ({ event, addUserFunc, schemaValidatorFunc }) => {
     if (!event.body) {
         return {
             statusCode: 400,
-            body: {
+            body: JSON.stringify({
                 message: 'No data!',
-            },
+            }),
             headers,
         };
     }
@@ -21,9 +21,9 @@ const handlerFactory = async ({ event, addUserFunc, schemaValidatorFunc }) => {
         if (!isEmpty(schemaValidatorFunc(requestBody))) {
             return {
                 statusCode: 400,
-                body: {
+                body: JSON.stringify({
                     message: 'Invalid data!',
-                },
+                }),
                 headers,
             };
         }
@@ -32,18 +32,18 @@ const handlerFactory = async ({ event, addUserFunc, schemaValidatorFunc }) => {
     } catch (error) {
         return {
             statusCode: 400,
-            body: {
+            body: JSON.stringify({
                 message: error.message,
-            },
+            }),
             headers,
         };
     }
 
     return {
         statusCode: 200,
-        body: {
+        body: JSON.stringify({
             message: 'User added!',
-        },
+        }),
         headers,
     };
 };
