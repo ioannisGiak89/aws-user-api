@@ -3,8 +3,7 @@ const cleanDynamoTable = require('../../testUtils/cleanDynamoTable');
 const addTestUsersToDynamoTable = require('../../testUtils/addTestUsersToDynamoTable');
 const scanDynamoTable = require('../../testUtils/scanDynamoTable');
 const handlerFactory = require('./handlerFactory');
-const getUsers = require('./getUsers');
-const transformUsers = require('./transformUsers');
+const deleteUser = require('./deleteUser');
 require('dotenv').config();
 
 const documentClient = new AWS.DynamoDB({
@@ -15,8 +14,7 @@ const documentClient = new AWS.DynamoDB({
     endpoint: 'http://localhost:4566',
 });
 
-const getUsersFunc = getUsers(documentClient);
-const transformUsersFunc = transformUsers();
+const deleteUserFunc = deleteUser(documentClient);
 
 describe('get user lambda', () => {
     beforeAll(async () => {
@@ -25,36 +23,46 @@ describe('get user lambda', () => {
 
     afterAll(() => cleanDynamoTable(documentClient));
 
-    it('should return 200 and an empty list', async () => {
-        const { Count, Items } = await scanDynamoTable(documentClient);
+    it('should delete a user', async () => {
+        await addTestUsersToDynamoTable(documentClient);
+        const resultBeforeDelete = await scanDynamoTable(documentClient);
 
         const response = await handlerFactory({
-            getUsersFunc,
-            transformUsersFunc,
+            deleteUserFunc,
+            event: {
+                pathParameters: {
+                    id: resultBeforeDelete.Items[0].id.S,
+                },
+            },
         });
 
-        expect(Count).toEqual(0);
+        const resultAfterDeletion = await scanDynamoTable(documentClient);
+
+        expect(resultAfterDeletion.Count).toEqual(resultBeforeDelete.Count - 1);
         expect(response).toEqual({
             statusCode: 200,
-            body: JSON.stringify(transformUsersFunc(Items)),
+            body: JSON.stringify({ message: 'User deleted!' }),
             headers: {
                 'Content-Type': 'application/json',
             },
         });
     });
-    it('should return 200 and a list with all the the users', async () => {
-        await addTestUsersToDynamoTable(documentClient);
-        const { Count, Items } = await scanDynamoTable(documentClient);
 
+    it('should return 404 if the user is not found', async () => {
         const response = await handlerFactory({
-            getUsersFunc,
-            transformUsersFunc,
+            deleteUserFunc,
+            event: {
+                pathParameters: {
+                    id: 'no existing id',
+                },
+            },
         });
 
-        expect(Count).toEqual(3);
         expect(response).toEqual({
-            statusCode: 200,
-            body: JSON.stringify(transformUsersFunc(Items)),
+            statusCode: 404,
+            body: JSON.stringify({
+                message: 'User not found!',
+            }),
             headers: {
                 'Content-Type': 'application/json',
             },

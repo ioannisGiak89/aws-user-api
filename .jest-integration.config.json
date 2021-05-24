@@ -1,5 +1,5 @@
 {
     "testRegex": ["\\.integration\\.test\\.js$"],
-    "modulePathIgnorePatterns": ["<rootDir>/cdk.out/"],
+    "modulePathIgnorePatterns": ["<rootDir>/cdk.out/", "<rootDir>/update-user-lambda/"],
     "testEnvironment": "node"
 }

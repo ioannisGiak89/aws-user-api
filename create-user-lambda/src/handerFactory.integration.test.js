@@ -1,5 +1,7 @@
 const AWS = require('aws-sdk');
 const cleanDynamoTable = require('../../testUtils/cleanDynamoTable');
+const addTestUsersToDynamoTable = require('../../testUtils/addTestUsersToDynamoTable');
+const scanDynamoTable = require('../../testUtils/scanDynamoTable');
 const handlerFactory = require('./handlerFactory');
 const addUser = require('./addUser');
 const schemaValidator = require('./schemaValidator');
@@ -17,10 +19,9 @@ const documentClient = new AWS.DynamoDB({
 const addUserFunc = addUser(documentClient);
 const schemaValidatorFunc = schemaValidator(user);
 
-const TableName = process.env.TABLE_NAME;
-
 describe('create user lambda', () => {
-    beforeEach(() => cleanDynamoTable(documentClient));
+    beforeAll(() => cleanDynamoTable(documentClient));
+    afterAll(() => cleanDynamoTable(documentClient));
 
     it('should return 400 if the request body is missing or is invalid', async () => {
         let response = await handlerFactory({
@@ -33,9 +34,9 @@ describe('create user lambda', () => {
 
         expect(response).toEqual({
             statusCode: 400,
-            body: {
+            body: JSON.stringify({
                 message: 'No data!',
-            },
+            }),
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -54,9 +55,9 @@ describe('create user lambda', () => {
 
         expect(response).toEqual({
             statusCode: 400,
-            body: {
+            body: JSON.stringify({
                 message: 'Invalid data!',
-            },
+            }),
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -78,26 +79,63 @@ describe('create user lambda', () => {
 
         expect(response).toEqual({
             statusCode: 200,
-            body: {
+            body: JSON.stringify({
                 message: 'User added!',
-            },
+            }),
             headers: {
                 'Content-Type': 'application/json',
             },
         });
 
-        const { Count } = await documentClient
-            .scan({
-                TableName,
-                ExpressionAttributeValues: {
-                    ':e': {
-                        S: 'testUser@gmail.com',
-                    },
+        const { Count } = await scanDynamoTable(documentClient, {
+            ExpressionAttributeValues: {
+                ':e': {
+                    S: 'testUser@gmail.com',
                 },
-                FilterExpression: 'email = :e',
-            })
-            .promise();
+            },
+            FilterExpression: 'email = :e',
+        });
 
         expect(Count).toEqual(1);
+    });
+
+    it('should update an item if user exists', async () => {
+        await addTestUsersToDynamoTable(documentClient);
+        const { Items } = await scanDynamoTable(documentClient);
+        const userToUpdate = Items[0];
+
+        const response = await handlerFactory({
+            event: {
+                body: JSON.stringify({
+                    id: userToUpdate.id.S,
+                    email: userToUpdate.email.S,
+                    givenName: userToUpdate.givenName.S,
+                    created: userToUpdate.created.S,
+                    familyName: 'New name',
+                }),
+            },
+            addUserFunc,
+            schemaValidatorFunc,
+        });
+
+        const result = await scanDynamoTable(documentClient, {
+            ExpressionAttributeValues: {
+                ':id': {
+                    S: userToUpdate.id.S,
+                },
+            },
+            FilterExpression: 'id = :id',
+        });
+
+        expect(response).toEqual({
+            statusCode: 200,
+            body: JSON.stringify({
+                message: 'User added!',
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        expect(result.Items[0]).toEqual({ ...userToUpdate, familyName: { S: 'New name' } });
     });
 });

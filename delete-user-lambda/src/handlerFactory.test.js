@@ -3,21 +3,16 @@ const handlerFactory = require('./handlerFactory');
 describe('handlerFactory', () => {
     it('should catch any errors', async () => {
         let response = await handlerFactory({
+            deleteUserFunc: jest.fn().mockRejectedValue(new Error('Table is missing')),
             event: {
-                body: JSON.stringify({
-                    email: 'testUser@gmail.com',
-                    givenName: 'Tester',
-                    familyName: 'BestTesters',
-                }),
+                pathParameters: {},
             },
-            addUserFunc: jest.fn().mockRejectedValue(new Error('Table is missing')),
-            schemaValidatorFunc: jest.fn().mockReturnValue([]),
         });
 
         expect(response).toEqual({
             statusCode: 400,
             body: JSON.stringify({
-                message: 'Table is missing',
+                message: 'Please provide an ID',
             }),
             headers: {
                 'Content-Type': 'application/json',
@@ -25,17 +20,16 @@ describe('handlerFactory', () => {
         });
 
         response = await handlerFactory({
+            deleteUserFunc: jest.fn().mockRejectedValue(new Error('Table is missing')),
             event: {
-                body: '\n',
+                pathParameters: { id: 'testId' },
             },
-            addUserFunc: jest.fn(),
-            schemaValidatorFunc: jest.fn(),
         });
 
         expect(response).toEqual({
             statusCode: 400,
             body: JSON.stringify({
-                message: 'Unexpected end of JSON input',
+                message: 'Table is missing',
             }),
             headers: {
                 'Content-Type': 'application/json',

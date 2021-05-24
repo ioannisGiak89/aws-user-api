@@ -9,9 +9,9 @@ describe('handlerFactory', () => {
 
         expect(response).toEqual({
             statusCode: 400,
-            body: {
+            body: JSON.stringify({
                 message: 'Table is missing',
-            },
+            }),
             headers: {
                 'Content-Type': 'application/json',
             },

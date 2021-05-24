@@ -6,7 +6,7 @@ const addUser = (documentClient) => async (requestBody) =>
             TableName: process.env.TABLE_NAME,
             Item: {
                 id: {
-                    S: uuidv4(),
+                    S: requestBody.id ? requestBody.id : uuidv4(),
                 },
                 email: {
                     S: requestBody.email,
@@ -18,7 +18,7 @@ const addUser = (documentClient) => async (requestBody) =>
                     S: requestBody.familyName,
                 },
                 created: {
-                    S: new Date().toISOString(),
+                    S: requestBody.created ? requestBody.created : new Date().toISOString(),
                 },
             },
         })

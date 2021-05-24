@@ -11,17 +11,14 @@ const user = require('./src/user.json');
 const { handler } = require('./index');
 
 describe('index', () => {
-    it('should initialise all the handler', async () => {
-        handlerFactory.mockImplementation(async () => 'Mocked!');
-
+    it('should initialise the handler', async () => {
         const mockedAddUserFun = jest.fn();
-        addUser.mockImplementation(() => mockedAddUserFun);
-
         const schemaValidatorFun = jest.fn();
-        schemaValidator.mockImplementation(() => schemaValidatorFun);
-
         const mockedDynamoDbClient = AWS.DynamoDB.mock.instances[0];
         const mockedAwsEvent = { body: 'Request body' };
+        handlerFactory.mockImplementation(async () => 'Mocked!');
+        addUser.mockImplementation(() => mockedAddUserFun);
+        schemaValidator.mockImplementation(() => schemaValidatorFun);
 
         await handler(mockedAwsEvent);
 

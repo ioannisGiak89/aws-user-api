@@ -40,6 +40,15 @@ export class AwsUserApiStack extends cdk.Stack {
             },
         });
 
+        const deleteUserLambda: LambdaFunction = new LambdaFunction(this, 'DeleteUserLambda', {
+            runtime: Runtime.NODEJS_14_X,
+            code: new AssetCode('delete-user-lambda'),
+            handler: process.env.AWS_ENV === 'local' ? 'indexLocal.handler' : 'index.handler',
+            environment: {
+                TABLE_NAME,
+            },
+        });
+
         const createUserIntegration: LambdaIntegration = new LambdaIntegration(createLambda, {
             requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
         });
@@ -48,9 +57,16 @@ export class AwsUserApiStack extends cdk.Stack {
             requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
         });
 
-        const userPath: Resource = api.root.addResource('user');
-        userPath.addMethod('PUT', createUserIntegration);
-        userPath.addMethod('GET', getUserIntegration);
+        const deleteUserIntegration: LambdaIntegration = new LambdaIntegration(deleteUserLambda, {
+            requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
+        });
+
+        const users: Resource = api.root.addResource('users');
+        users.addMethod('PUT', createUserIntegration);
+        users.addMethod('GET', getUserIntegration);
+
+        const user: Resource = users.addResource('{id}');
+        user.addMethod('DELETE', deleteUserIntegration);
 
         const table = new Table(this, TABLE_NAME, {
             partitionKey: { name: 'id', type: AttributeType.STRING },
@@ -59,6 +75,7 @@ export class AwsUserApiStack extends cdk.Stack {
         });
 
         table.grantWriteData(createLambda);
+        table.grantWriteData(deleteUserLambda);
         table.grantReadData(getUserLambda);
     }
 }
