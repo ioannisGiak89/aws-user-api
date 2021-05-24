@@ -1,6 +1,6 @@
 const { isEmpty } = require('lodash');
 
-const handlerFactory = async ({ event, addUserFunc, schemaValidatorFunc }) => {
+const handlerFactory = async ({ event, upsertUserFunc, schemaValidatorFunc }) => {
     const headers = {
         'Content-Type': 'application/json',
     };
@@ -28,7 +28,7 @@ const handlerFactory = async ({ event, addUserFunc, schemaValidatorFunc }) => {
             };
         }
 
-        await addUserFunc(requestBody);
+        await upsertUserFunc(requestBody);
     } catch (error) {
         return {
             statusCode: 400,

@@ -22,9 +22,9 @@ export class AwsUserApiStack extends cdk.Stack {
             },
         });
 
-        const createLambda: LambdaFunction = new LambdaFunction(this, 'CreateLambda', {
+        const upsertUserLambda: LambdaFunction = new LambdaFunction(this, 'UpsertUserLambda', {
             runtime: Runtime.NODEJS_14_X,
-            code: new AssetCode('create-user-lambda'),
+            code: new AssetCode('upsert-user-lambda'),
             handler: process.env.AWS_ENV === 'local' ? 'indexLocal.handler' : 'index.handler',
             environment: {
                 TABLE_NAME,
@@ -49,7 +49,7 @@ export class AwsUserApiStack extends cdk.Stack {
             },
         });
 
-        const createUserIntegration: LambdaIntegration = new LambdaIntegration(createLambda, {
+        const upsertUserIntegration: LambdaIntegration = new LambdaIntegration(upsertUserLambda, {
             requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
         });
 
@@ -62,7 +62,7 @@ export class AwsUserApiStack extends cdk.Stack {
         });
 
         const users: Resource = api.root.addResource('users');
-        users.addMethod('PUT', createUserIntegration);
+        users.addMethod('PUT', upsertUserIntegration);
         users.addMethod('GET', getUserIntegration);
 
         const user: Resource = users.addResource('{id}');
@@ -74,7 +74,7 @@ export class AwsUserApiStack extends cdk.Stack {
             tableName: TABLE_NAME,
         });
 
-        table.grantWriteData(createLambda);
+        table.grantWriteData(upsertUserLambda);
         table.grantWriteData(deleteUserLambda);
         table.grantReadData(getUserLambda);
     }

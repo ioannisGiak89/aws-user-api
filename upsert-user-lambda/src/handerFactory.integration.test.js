@@ -3,7 +3,7 @@ const cleanDynamoTable = require('../../testUtils/cleanDynamoTable');
 const addTestUsersToDynamoTable = require('../../testUtils/addTestUsersToDynamoTable');
 const scanDynamoTable = require('../../testUtils/scanDynamoTable');
 const handlerFactory = require('./handlerFactory');
-const addUser = require('./addUser');
+const upsertUser = require('./upsertUser');
 const schemaValidator = require('./schemaValidator');
 const user = require('./user.json');
 require('dotenv').config();
@@ -16,7 +16,7 @@ const documentClient = new AWS.DynamoDB({
     endpoint: 'http://localhost:4566',
 });
 
-const addUserFunc = addUser(documentClient);
+const upsertUserFunc = upsertUser(documentClient);
 const schemaValidatorFunc = schemaValidator(user);
 
 describe('create user lambda', () => {
@@ -28,7 +28,7 @@ describe('create user lambda', () => {
             event: {
                 body: null,
             },
-            addUserFunc,
+            upsertUserFunc,
             schemaValidatorFunc,
         });
 
@@ -49,7 +49,7 @@ describe('create user lambda', () => {
                     givenName: 'PostMan',
                 }),
             },
-            addUserFunc,
+            upsertUserFunc,
             schemaValidatorFunc,
         });
 
@@ -73,7 +73,7 @@ describe('create user lambda', () => {
                     familyName: 'BestTesters',
                 }),
             },
-            addUserFunc,
+            upsertUserFunc,
             schemaValidatorFunc,
         });
 
@@ -114,7 +114,7 @@ describe('create user lambda', () => {
                     familyName: 'New name',
                 }),
             },
-            addUserFunc,
+            upsertUserFunc,
             schemaValidatorFunc,
         });
 

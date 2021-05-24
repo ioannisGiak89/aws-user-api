@@ -10,7 +10,7 @@ describe('handlerFactory', () => {
                     familyName: 'BestTesters',
                 }),
             },
-            addUserFunc: jest.fn().mockRejectedValue(new Error('Table is missing')),
+            upsertUserFunc: jest.fn().mockRejectedValue(new Error('Table is missing')),
             schemaValidatorFunc: jest.fn().mockReturnValue([]),
         });
 
@@ -28,7 +28,7 @@ describe('handlerFactory', () => {
             event: {
                 body: '\n',
             },
-            addUserFunc: jest.fn(),
+            upsertUserFunc: jest.fn(),
             schemaValidatorFunc: jest.fn(),
         });
 

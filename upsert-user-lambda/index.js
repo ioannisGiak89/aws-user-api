@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const addUser = require('./src/addUser');
+const upsertUser = require('./src/upsertUser');
 const user = require('./src/user.json');
 const schemaValidator = require('./src/schemaValidator');
 const handlerFactory = require('./src/handlerFactory');
@@ -9,12 +9,12 @@ const documentClient = new AWS.DynamoDB({
 });
 
 const handler = async (event) => {
-    const addUserFunc = addUser(documentClient);
+    const upsertUserFunc = upsertUser(documentClient);
     const schemaValidatorFunc = schemaValidator(user);
 
     return handlerFactory({
         event,
-        addUserFunc,
+        upsertUserFunc,
         schemaValidatorFunc,
     });
 };

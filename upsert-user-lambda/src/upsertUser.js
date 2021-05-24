@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 
-const addUser = (documentClient) => async (requestBody) =>
+const upsertUser = (documentClient) => async (requestBody) =>
     documentClient
         .putItem({
             TableName: process.env.TABLE_NAME,
@@ -24,4 +24,4 @@ const addUser = (documentClient) => async (requestBody) =>
         })
         .promise();
 
-module.exports = addUser;
+module.exports = upsertUser;
