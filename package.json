@@ -9,6 +9,7 @@
         "watch": "tsc -w",
         "test": "jest --config .jest.config.json --runInBand",
         "test:integration": "jest --config .jest-integration.config.json --runInBand",
+        "setup": "node ./scripts/set-up.js",
         "cdk": "cdk",
         "prepare": "husky install"
     },
@@ -34,7 +35,12 @@
         "@aws-cdk/core": "1.105.0",
         "aws-cdk-local": "^1.65.4",
         "dotenv": "^9.0.2",
+        "execa": "^5.0.0",
         "faker": "^5.5.3",
+        "find-up": "^5.0.0",
+        "fs-extra": "^10.0.0",
+        "globby": "^11.0.3",
+        "listr": "^0.14.3",
         "source-map-support": "^0.5.16",
         "uuid": "^8.3.2"
     }

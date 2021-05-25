@@ -3,7 +3,7 @@ version: '3.9'
 services:
     localstack:
         container_name: aws-user-api
-        image: localstack/localstack:0.12.10
+        image: localstack/localstack:latest
         ports:
             - '4566:4566'
         environment:
@@ -12,7 +12,7 @@ services:
             - DEBUG=1
             - LAMBDA_EXECUTOR=docker-reuse
             - DEFAULT_REGION=eu-west-1
-            - LAMBDA_DOCKER_NETWORK=default_network
+            - LAMBDA_DOCKER_NETWORK=aws-user-api
             - LOCALSTACK_HOSTNAME=localStack
         volumes:
             - '${TMPDIR:-/tmp/localstack}:/tmp/localstack'
@@ -20,4 +20,4 @@ services:
 
 networks:
     default:
-        name: default_network
+        name: aws-user-api
